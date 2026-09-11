@@ -38,7 +38,7 @@ pipeline {
 			steps {
 				withCredentials([
 					usernamePassword(
-					credentialsId: 'acr-credentials',
+					credentialsId: '3875eee5-a9cb-4ab2-b4ed-68d58f66d853',
 					usernameVariable: 'ACR_USER',
 					passwordVariable: 'ACR_PASSWORD')					
 					]) 
