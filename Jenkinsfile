@@ -33,31 +33,32 @@ pipeline {
 				'''
 				}
 			     }
-		stage('Push Image') {
-			agent { label 'docker-agent' }
-			steps {
-				withCredentials([
-					usernamePassword(
-					credentialsId: '3875eee5-a9cb-4ab2-b4ed-68d58f66d853',
-					usernameVariable: 'ACR_USER',
-					passwordVariable: 'ACR_PASSWORD')					
-					]) 
-			      {
-		             sh '''
-        		        set -e
 
-                		echo "$ACR_PASSWORD" | docker login k8straining123.azurecr.io \
-                    		--username "$ACR_USERNAME" \
+		stage('Push Image') {
+    		agent { label 'docker-agent' }
+    		steps {
+        		withCredentials([
+            		usernamePassword(
+                		credentialsId: '3875eee5-a9cb-4ab2-b4ed-68d58f66d853',
+                		usernameVariable: 'ACR_USER',
+                		passwordVariable: 'ACR_PASSWORD'
+            		)
+        		]) {
+            		sh '''
+                		set -e
+
+                		echo "$ACR_PASSWORD" | docker login ${REGISTRY} \
+                    		--username "$ACR_USER" \
                     		--password-stdin
 
-                		docker push k8straining123.azurecr.io/myapp:${BUILD_NUMBER}
-                		docker push k8straining123.azurecr.io/myapp:latest
+                		docker push ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                		docker push ${REGISTRY}/${IMAGE_NAME}:latest
 
-                		docker logout k8straining123.azurecr.io
+                		docker logout ${REGISTRY}
             		'''
-				}	
-				}
-			}	
+        		}
+    		}	
+		}
 
 		stage('Deploy to Kubernetes') {
 		agent { label 'built-in' }
