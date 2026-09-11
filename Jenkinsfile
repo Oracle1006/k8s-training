@@ -61,31 +61,38 @@ pipeline {
 		}
 
 		stage('Deploy to Kubernetes') {
-		agent { label 'built-in' }
-		steps {
-			withKubeConfig([
-			credentialsId: 'kubernetes-kubeconfig'
-			]) 
-			{
-				sh '''
-				set -e
-				kubectl -n ${K8S_NAMESPACE} set image deployment/${DEPLOYMENT} ${CONTAINER}=${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} kubectl -n ${K8S_NAMESPACE} rollout status deployment/${DEPLOYMENT} --timeout=180s
-				'''
+			agent { label 'built-in' }
+			steps {
+				withKubeConfig([
+				credentialsId: 'kubernetes-kubeconfig'
+				]) 
+				{
+					sh '''
+    					set -e
+
+    					kubectl -n ${K8S_NAMESPACE} set image \
+        					deployment/${DEPLOYMENT} \
+        					${CONTAINER}=${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+
+    					kubectl -n ${K8S_NAMESPACE} rollout status \
+        					deployment/${DEPLOYMENT} \
+        					--timeout=180s
+					'''
+					}
 				}
 			}
 		}
-	}
 	
 	post {
 		success {
-		echo "Deployment succeeded."
-		echo "Image: ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
-		}
+			echo "Deployment succeeded."
+			echo "Image: ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
+			}
 		failure {
-		echo "Pipeline failed. Review the stage logs."
-		}
+			echo "Pipeline failed. Review the stage logs."
+			}
 		always {
-		sh 'docker image prune -f || true'
+			sh 'docker image prune -f || true'
+			}
 		}
-	}
-     }
+    }
