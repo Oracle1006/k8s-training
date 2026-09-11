@@ -43,10 +43,18 @@ pipeline {
 					passwordVariable: 'ACR_PASSWORD')					
 					]) 
 			      {
-				sh '''
-				set -e
-				echo "$ACR_PASSWORD" | docker login ${REGISTRY} --username "$ACR_USER" -password-stdin docker push ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} docker push ${REGISTRY}/${IMAGE_NAME}:latest docker logout ${REGISTRY}
-				'''
+		             sh '''
+        		        set -e
+
+                		echo "$ACR_PASSWORD" | docker login k8straining123.azurecr.io \
+                    		--username "$ACR_USERNAME" \
+                    		--password-stdin
+
+                		docker push k8straining123.azurecr.io/myapp:${BUILD_NUMBER}
+                		docker push k8straining123.azurecr.io/myapp:latest
+
+                		docker logout k8straining123.azurecr.io
+            		'''
 				}	
 				}
 			}	
