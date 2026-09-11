@@ -64,7 +64,7 @@ pipeline {
 			agent { label 'built-in' }
 			steps {
 				withKubeConfig([
-				credentialsId: 'kubernetes-kubeconfig'
+				credentialsId: 'config'
 				]) 
 				{
 					sh '''
